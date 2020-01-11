@@ -1,0 +1,1 @@
+## Worker que trabalha com callbacks no lugar de arquivos
