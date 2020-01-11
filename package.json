@@ -1,5 +1,5 @@
 {
-  "name": "inline-worker",
+  "name": "inline-iso-worker",
   "version": "0.0.1",
   "description": "Worker que trabalha com callbacks no lugar de arquivos",
   "main": "index.js",

@@ -2,4 +2,4 @@ node_modules
 app
 .vscode
 **/yarn-error.log
-app*.tgz
+*.tgz
