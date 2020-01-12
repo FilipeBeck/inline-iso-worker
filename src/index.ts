@@ -1,4 +1,3 @@
-import { Worker } from 'worker_threads'
 import InlineWorker from './InlineWorker'
 
 let $Worker: new <TCallback extends (...args: any[]) => any>(callback: TCallback) => InlineWorker<TCallback>
