@@ -13,6 +13,9 @@
     "build": "yarn clear && yarn compile && yarn copy-resources",
     "test": "yarn jest"
   },
+  "browser": {
+    "worker_threads": false
+  },
   "peerDependencies": {
     "tslib": "^1.10.0"
   },
