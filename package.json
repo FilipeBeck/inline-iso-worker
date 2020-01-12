@@ -1,6 +1,6 @@
 {
   "name": "inline-iso-worker",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Worker que trabalha com callbacks no lugar de arquivos",
   "main": "index.js",
   "author": "Filipe Roberto Beck <filipe.beck@gmail.com>",
