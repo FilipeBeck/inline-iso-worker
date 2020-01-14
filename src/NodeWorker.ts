@@ -3,33 +3,26 @@ import InlineWorker from './InlineWorker'
 
 // Código executado apenas pelo worker
 if (!isMainThread) {
-	const code = new Function('...args', workerData)
-
-	parentPort?.on('message', data => {
-		const args = JSON.parse(data)
-		parentPort?.postMessage(JSON.stringify(code(...args)))
-	})
-
+	new Function('parentPort', workerData)(parentPort)
 	// @ts-ignore - o código restante é desnecessário no escopo do worker
 	return
 }
 
 /**
  * Worker utilizado no ambiente Node.
- * @param TCallback Manipulador de execução
+ * @param TCallback Manipulador de execução.
+ * @param TScope Variáveis disponíveis no escopo do worker.
  */
-export default class NodeWorker<TCallback extends (...args: any[]) => any> extends InlineWorker<TCallback> {
+export default class NodeWorker<TCallback extends (...args: any[]) => any, TScope extends object> extends InlineWorker<TCallback, TScope> {
 	/**
-	 * Construtor
-	 * @param handler Callback invocado sempre que executar o worker
+	 * Construtor.
+	 * @param handler Callback invocado sempre que executar o worker.
+	 * @param scope Variáveis disponíveis no escopo do worker.
 	 */
-	constructor(handler: TCallback) {
-		super(handler)
+	constructor(handler: TCallback, scope?: TScope) {
+		super(handler, scope)
 
-		const code = `
-			const callback = ${this.isNativeCallback && handler.name || handler.toString()}
-			return callback(...args)
-		`
+		const code = this.createSerializedRunner(false)
 
 		this.innerWorker = new Worker(__filename, { workerData: code })
 	}
@@ -41,14 +34,39 @@ export default class NodeWorker<TCallback extends (...args: any[]) => any> exten
 	 */
 	public async run(...args: Parameters<TCallback>): Promise<ReturnType<TCallback>> {
 		return this.queue((resolve, reject) => {
-			this.innerWorker.postMessage(JSON.stringify(args))
-			this.innerWorker.on('message', data => resolve(JSON.parse(data)))
-			this.innerWorker.on('error', error => reject(error))
-			this.innerWorker.on('exit', (code) => {
-				if (code !== 0)
+			const messageHandler = (data: string) => {
+				removeListeners()
+				resolve(data !== undefined && JSON.parse(data) || undefined)
+			}
+
+			const errorHandler = (error: Error) => {
+				removeListeners()
+				reject(error)
+			}
+
+			const exitHandler = (code: number) => {
+				removeListeners()
+				if (code !== 0) {
 					reject(new Error(`Worker stopped with exit code ${code}`))
-			})
+				}
+			}
+
+			const removeListeners = () => {
+				this.innerWorker.off('message', messageHandler)
+				this.innerWorker.off('error', errorHandler)
+				this.innerWorker.off('exit', exitHandler)
+			}
+
+			this.innerWorker.on('message', messageHandler)
+			this.innerWorker.on('error', errorHandler)
+			this.innerWorker.on('exit', exitHandler)
+
+			this.innerWorker.postMessage(JSON.stringify(args))
 		})
+	}
+
+	public terminate(): void {
+		this.innerWorker.terminate()
 	}
 
 	/** Instância do worker nativo. */

@@ -3,23 +3,18 @@ import InlineWorker from './InlineWorker'
 /**
  * Worker utilizado no ambiente do browser.
  * @param TCallback Manipulador de execução
+ * @param TScope Variáveis disponíveis no escopo do worker.
  */
-export default class BrowserWorker<TCallback extends (...args: any[]) => any> extends InlineWorker<TCallback> {
+export default class BrowserWorker<TCallback extends (...args: any[]) => any, TScope extends object> extends InlineWorker<TCallback, TScope> {
 	/**
-	 * Construtor
-	 * @param handler Callback invocado sempre que executar o worker
+	 * Construtor.
+	 * @param handler Callback invocado sempre que executar o worker.
+	 * @param scope Variáveis disponíveis no escopo do worker.
 	 */
-	constructor(callback: TCallback) {
-		super(callback)
+	constructor(callback: TCallback, scope?: TScope) {
+		super(callback, scope)
 
-		const code = `data://utf8; application/javascript,
-			const callback = ${this.isNativeCallback && callback.name || callback.toString()}
-
-			self.onmessage = function(event) {
-				const args = JSON.parse(event.data)
-				self.postMessage(JSON.stringify(callback(...args)))
-			}
-		`
+		const code = this.createSerializedRunner(true)
 
 		this.innerWorker = new Worker(code)
 	}
@@ -31,10 +26,33 @@ export default class BrowserWorker<TCallback extends (...args: any[]) => any> ex
 	 */
 	public async run(...args: Parameters<TCallback>): Promise<ReturnType<TCallback>> {
 		return this.queue((resolve, reject) => {
-			this.innerWorker.onmessage = event => resolve(JSON.parse(event.data))
-			this.innerWorker.onerror = event => reject(event.error)
+			const messageHandler = (event: MessageEvent) => {
+				removeListeners()
+				resolve(event.data !== undefined && JSON.parse(event.data) || undefined)
+			}
+
+			const errorHandler = (event: ErrorEvent) => {
+				removeListeners()
+				reject(event.error)
+			}
+
+			const removeListeners = () => {
+				this.innerWorker.removeEventListener('message', messageHandler)
+				this.innerWorker.removeEventListener('error', errorHandler)
+			}
+
+			this.innerWorker.addEventListener('error', errorHandler)
+			this.innerWorker.addEventListener('message', messageHandler)
+
 			this.innerWorker.postMessage(JSON.stringify(args))
 		})
+	}
+
+	/**
+	 * Encerra o worker imediatamente, independentemente do worker ter concluido alguma operação em andamento.
+	 */
+	public terminate(): void {
+		this.innerWorker.terminate()
 	}
 
 	/** Instância do worker nativo. */

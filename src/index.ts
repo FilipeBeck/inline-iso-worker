@@ -1,6 +1,6 @@
 import InlineWorker from './InlineWorker'
 
-let $Worker: new <TCallback extends (...args: any[]) => any>(callback: TCallback) => InlineWorker<TCallback>
+let $Worker: new <TCallback extends (...args: any[]) => any, TScope extends object>(callback: TCallback) => InlineWorker<TCallback, TScope>
 
 if (typeof Worker == 'undefined') {
 	$Worker = require('./FakeWorker').default
