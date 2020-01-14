@@ -11,7 +11,7 @@
     "compile": "yarn tsc",
     "copy-resources": "cp package.json README.md app",
     "build": "yarn clear && yarn compile && yarn copy-resources",
-    "test": "yarn jest"
+    "test": "yarn tsc && yarn jest --detectOpenHandles"
   },
   "browser": {
     "worker_threads": false
