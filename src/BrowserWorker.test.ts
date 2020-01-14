@@ -7,7 +7,7 @@ import BrowserWorker from './BrowserWorker'
 import mockConsole from 'jest-mock-console'
 
 declare global {
-	const InlineWorker: new <TCallback extends (...args: any[]) => any>(callback: TCallback) => BrowserWorker<TCallback>
+	const InlineWorker: new <TCallback extends (this: WindowOrWorkerGlobalScope & TScope, ...args: any[]) => any, TScope extends object>(callback: TCallback, scope?: TScope) => BrowserWorker<TCallback, TScope>
 }
 
 const indexTSScript = `
@@ -89,11 +89,11 @@ describe('Método run()', () => {
 		mockConsole()
 	})
 
-	test('valor de retorno para callbacks não-nativos"', async () => {
+	test('valor de retorno para callbacks não-nativos', async () => {
 		expect.assertions(1)
 
 		const evaluations = await page.evaluate(async () => {
-			const worker = new InlineWorker((...args: number[]) => {
+			const worker = new InlineWorker(function (...args: number[]) {
 				return args.map(arg => arg * 2)
 			})
 
@@ -103,6 +103,8 @@ describe('Método run()', () => {
 				[1, 3, 9, 27],
 				[10, 30, 90, 270]
 			]
+
+			worker.terminate()
 
 			return await Promise.all(parameters.map(parameter => worker.run(...parameter)))
 		})
@@ -122,8 +124,9 @@ describe('Método run()', () => {
 
 		const evaluations = await page.evaluate(async () => {
 			const worker = new InlineWorker(parseInt)
-
 			const parameters = ['1.5', '2.5', '4.5', '8.5']
+
+			worker.terminate()
 
 			return await Promise.all(parameters.map(parameter => worker.run(parameter)))
 		})
@@ -131,5 +134,19 @@ describe('Método run()', () => {
 		const expectedOutputs = [1, 2, 4, 8]
 
 		expect(evaluations).toEqual(expectedOutputs)
+	})
+
+	test('callback sem argumentos e sem valor de retorno', async () => {
+		expect.assertions(1)
+
+		const evaluation = await page.evaluate(async () => {
+			const worker = new InlineWorker(() => {})
+
+			worker.terminate()
+
+			return await worker.run()
+		})
+
+		expect(evaluation).toBe(undefined)
 	})
 })
