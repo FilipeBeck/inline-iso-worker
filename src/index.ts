@@ -1,15 +1,16 @@
-import InlineWorker from './InlineWorker'
+import { WorkerConstructor } from './InlineWorker'
+import isNode from 'detect-node'
 
-let $Worker: new <TCallback extends (...args: any[]) => any, TScope extends object>(callback: TCallback) => InlineWorker<TCallback, TScope>
+let $Worker: WorkerConstructor
 
-if (typeof Worker == 'undefined') {
-	$Worker = require('./FakeWorker').default
-}
-else if (typeof window == 'undefined' || typeof window.document == 'undefined') {
+if (isNode) {
 	$Worker = require('./NodeWorker').default
 }
-else {
+else if (typeof Worker != 'undefined') {
 	$Worker = require('./BrowserWorker').default
+}
+else {
+	$Worker = require('./FallbackWorker').default
 }
 
 export default $Worker

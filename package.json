@@ -20,13 +20,13 @@
     "tslib": "^1.10.0"
   },
   "devDependencies": {
+    "@types/detect-node": "^2.0.0",
     "@types/jest": "^24.0.25",
     "@types/jest-environment-puppeteer": "^4.3.1",
     "@types/memory-fs": "^0.3.2",
     "@types/node": "^13.1.5",
     "@types/puppeteer": "^2.0.0",
     "@types/webpack": "^4.41.2",
-    "get-tsconfig": "^1.0.1",
     "jest": "^24.9.0",
     "jest-mock-console": "^1.0.0",
     "jest-puppeteer": "^4.4.0",
@@ -38,5 +38,8 @@
     "tslib": "^1.10.0",
     "typescript": "^3.7.4",
     "webpack": "^4.41.5"
+  },
+  "dependencies": {
+    "detect-node": "^2.0.4"
   }
 }
