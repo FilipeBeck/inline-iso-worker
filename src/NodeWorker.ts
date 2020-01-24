@@ -1,5 +1,5 @@
 import { Worker, isMainThread, parentPort, workerData } from 'worker_threads'
-import InlineWorker from './InlineWorker'
+import InlineWorker, { WorkerMessage } from './InlineWorker'
 
 // Código executado apenas pelo worker
 if (!isMainThread) {
@@ -10,17 +10,31 @@ if (!isMainThread) {
 
 /**
  * Worker utilizado no ambiente Node.
- * @param TCallback Manipulador de execução.
  * @param TScope Variáveis disponíveis no escopo do worker.
+ * @param TCallback Manipulador de execução.
  */
-export default class NodeWorker<TCallback extends (...args: any[]) => any, TScope extends object> extends InlineWorker<TCallback, TScope> {
+export default class NodeWorker<TScope, TCallback extends (this: TScope, ...args: any[]) => any> extends InlineWorker<TScope, TCallback> {
+	/** Instância do worker nativo. */
+	protected innerWorker: Worker
+
+	/**
+	 * Construtor.
+	 * @param scope Variáveis disponíveis no escopo do worker.
+	 * @param handler Callback invocado sempre que executar o worker.
+	 */
+	constructor(scope: TScope, handler: TCallback)
+
 	/**
 	 * Construtor.
 	 * @param handler Callback invocado sempre que executar o worker.
-	 * @param scope Variáveis disponíveis no escopo do worker.
 	 */
-	constructor(handler: TCallback, scope?: TScope) {
-		super(handler, scope)
+	constructor(handler: TCallback)
+	
+	/**
+	 * Construtor.
+	 */
+	constructor(...args: any[]) {
+		super(args[0], args[1])
 
 		const code = this.createSerializedRunner(false)
 
@@ -32,11 +46,19 @@ export default class NodeWorker<TCallback extends (...args: any[]) => any, TScop
 	 * @param args Argumentos fornecidos ao manipulador de execução.
 	 * @return Promessa com o valor de retorno do manipulador.
 	 */
-	public async run(...args: Parameters<TCallback>): Promise<ReturnType<TCallback>> {
+	public run(...args: Parameters<TCallback>): Promise<ReturnType<TCallback>> {
 		return this.queue((resolve, reject) => {
 			const messageHandler = (data: string) => {
 				removeListeners()
-				resolve(data !== undefined && JSON.parse(data) || undefined)
+
+				const workerMessage = JSON.parse(data) as WorkerMessage
+
+				if (!workerMessage.isError) {
+					resolve(workerMessage.data)
+				}
+				else {
+					reject(new Error(workerMessage.data))
+				}
 			}
 
 			const errorHandler = (error: Error) => {
@@ -68,7 +90,4 @@ export default class NodeWorker<TCallback extends (...args: any[]) => any, TScop
 	public terminate(): void {
 		this.innerWorker.terminate()
 	}
-
-	/** Instância do worker nativo. */
-	private innerWorker: Worker
 }
