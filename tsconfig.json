@@ -60,5 +60,5 @@
     // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
-  "exclude": ["./app", "**/*.test.ts"] // Excluindo app ao invés de incluir src devido a problemas com webpack (tsconfig é copiado para /tmp)
+  "include": ["./src"]
 }
