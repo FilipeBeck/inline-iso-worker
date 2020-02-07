@@ -1,6 +1,6 @@
 import path from 'path'
 import SupposedNodeWorker from '../src/index'
-import pack from './packteer'
+import pack from 'packteer'
 import { WorkerConstructor } from '../src/InlineWorker'
 
 declare global {
@@ -8,7 +8,7 @@ declare global {
 	const SupposedFallbackWorker: WorkerConstructor
 }
 
-const browserWorkerAssertion = pack(page, path.resolve(__dirname, '..', 'src', 'index.ts'), 'SupposedBrowserWorker')
+const browserWorkerAssertion = pack(page, { SupposedBrowserWorker: path.resolve(__dirname, '..', 'src', 'index.ts') })
 
 describe('Exportação de acordo com o ambiente', () => {
 	beforeAll(async () => {
@@ -32,7 +32,7 @@ describe('Exportação de acordo com o ambiente', () => {
 	test('exporta `FallbackWorker` em ambiente sem `Worker`', async () => {
 		await page.reload()
 		await page.evaluate(() => (window as any).Worker = undefined )
-		await pack(page, path.resolve(__dirname, '..', 'src', 'index.ts'), 'SupposedFallbackWorker')
+		await pack(page, { SupposedFallbackWorker: path.resolve(__dirname, '..', 'src', 'index.ts') })
 
 		const constructorName = await page.evaluate(() => {
 			return SupposedFallbackWorker.name

@@ -1,5 +1,5 @@
 import path from 'path'
-import pack from './packteer'
+import pack from 'packteer'
 import { WorkerConstructor } from '../src/InlineWorker'
 import mockConsole from 'jest-mock-console'
 

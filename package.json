@@ -7,7 +7,11 @@
   "author": "Filipe Roberto Beck <filipe.beck@gmail.com>",
   "license": "MIT",
   "private": false,
-  "keywords": ["worker", "isomorfism", "async"],
+  "keywords": [
+    "worker",
+    "isomorfism",
+    "async"
+  ],
   "scripts": {
     "clear": "rm -rf app",
     "compile": "yarn tsc",
@@ -34,6 +38,7 @@
     "jest-puppeteer": "^4.4.0",
     "memfs": "^3.0.3",
     "memory-fs": "^0.5.0",
+    "packteer": "^0.0.1",
     "puppeteer": "^2.0.0",
     "ts-jest": "^24.3.0",
     "ts-loader": "^6.2.1",
