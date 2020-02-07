@@ -17,7 +17,8 @@
     "compile": "yarn tsc",
     "copy-resources": "cp package.json README.md app",
     "build": "yarn clear && yarn compile && yarn copy-resources",
-    "test": "yarn tsc && yarn jest --detectOpenHandles"
+    "test": "yarn tsc && yarn jest --detectOpenHandles",
+    "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
   "browser": {
     "worker_threads": false
