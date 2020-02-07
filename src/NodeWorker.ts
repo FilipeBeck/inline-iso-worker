@@ -1,5 +1,5 @@
 import { Worker, isMainThread, parentPort, workerData } from 'worker_threads'
-import InlineWorker, { WorkerMessage } from './InlineWorker'
+import InlineWorker, { WorkerMessage, BaseCallback } from './InlineWorker'
 
 // Código executado apenas pelo worker
 if (!isMainThread) {
@@ -13,7 +13,7 @@ if (!isMainThread) {
  * @param TScope Variáveis disponíveis no escopo do worker.
  * @param TCallback Manipulador de execução.
  */
-export default class NodeWorker<TScope, TCallback extends (this: TScope, ...args: any[]) => any> extends InlineWorker<TScope, TCallback> {
+export default class NodeWorker<TScope, TCallback extends BaseCallback<TScope>> extends InlineWorker<TScope, TCallback> {
 	/** Instância do worker nativo. */
 	protected innerWorker: Worker
 

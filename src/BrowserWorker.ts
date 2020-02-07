@@ -1,11 +1,11 @@
-import InlineWorker, { WorkerMessage } from './InlineWorker'
+import InlineWorker, { WorkerMessage, BaseCallback } from './InlineWorker'
 
 /**
  * Worker utilizado no ambiente do browser.
  * @param TScope Variáveis disponíveis no escopo do worker.
  * @param TCallback Manipulador de execução
  */
-export default class BrowserWorker<TScope, TCallback extends (this: TScope, ...args: any[]) => any> extends InlineWorker<TScope, TCallback> {
+export default class BrowserWorker<TScope, TCallback extends BaseCallback<TScope>> extends InlineWorker<TScope, TCallback> {
 	/** Instância do worker nativo. */
 	protected innerWorker: Worker
 

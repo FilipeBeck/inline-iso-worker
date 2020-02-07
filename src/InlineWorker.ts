@@ -9,14 +9,17 @@ export interface WorkerConstructor {
 	 * @param scope Variáveis disponíveis no escopo do worker.
 	 * @param handler Callback invocado sempre que executar o worker.
 	 */
-	new <TScope, TCallback extends (this: TScope, ...args: any[]) => any>(scope: TScope, callback: TCallback): InlineWorker<TScope, TCallback>
+	new <TScope, TCallback extends BaseCallback<TScope>>(scope: TScope, callback: TCallback): InlineWorker<TScope, TCallback>
 
 	/**
 	 * Construtor sem escopo.
 	 * @param handler Callback invocado sempre que executar o worker.
 	 */
-	new <TCallback extends (this: undefined, ...args: any[]) => any>(callback: TCallback): InlineWorker<undefined, TCallback>
+	new <TCallback extends BaseCallback>(callback: TCallback): InlineWorker<undefined, TCallback>
 }
+
+/** Callback base. */
+export type BaseCallback<TScope = undefined> = (this: TScope, ...args: any[]) => any
 
 /**
  * @internal
@@ -37,7 +40,7 @@ type BrowserWorker = Worker
  * @param TScope Variáveis disponíveis no escopo do worker.
  * @param TCallback Manipulador de execução.
  */
-export default abstract class InlineWorker<TScope, TCallback extends (this: TScope, ...args: any[]) => any> {
+export default abstract class InlineWorker<TScope, TCallback extends BaseCallback<TScope>> {
 	/** Variáveis disponíveis no escopo do worker. */
 	protected scope?: TScope
 
@@ -51,6 +54,9 @@ export default abstract class InlineWorker<TScope, TCallback extends (this: TSco
 	protected get isNativeCallback(): boolean {
 		return /{[\s\n]*\[native code\][\s\n]*}$/.test(this.handler.toString())
 	}
+
+	/** Última promessa criada por `queue`. */
+	private lastQueuedPromise?: Promise<ReturnType<TCallback>>
 
 	/**
 	 * Construtor.
@@ -139,7 +145,4 @@ export default abstract class InlineWorker<TScope, TCallback extends (this: TSco
 
 		return this.lastQueuedPromise = nextPromise
 	}
-
-	/** Última promessa criada por `queue`. */
-	private lastQueuedPromise?: Promise<ReturnType<TCallback>>
 }
