@@ -33,6 +33,16 @@ export default class Cluster<TScope, TCallback extends BaseCallback<TScope>> {
 	}
 
 	/**
+	 * Encerra os workers imediatamente, independentemente de terem concluido alguma operação em andamento.
+	 */
+	public terminate(): void {
+		for (const worker of this.workers) {
+			worker.terminate()
+		}
+	}
+
+
+	/**
 	 * Sincroniza a execução de `handler` com os demais em andamento, evitando sobrescrita de entrada/saida nas trocas de mensagens.
 	 * @param handler Callback a ser enfileirado.
 	 */
