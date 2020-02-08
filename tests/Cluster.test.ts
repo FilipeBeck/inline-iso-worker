@@ -24,6 +24,7 @@ describe('Método run()', () => {
 		]
 
 		const outputs = await Promise.all(parameters.map(parameter => cluster.run(parameter)))
+		cluster.terminate()
 
 		expect(outputs).toEqual(expectedOutputs)
 	})
@@ -36,6 +37,7 @@ describe('Método run()', () => {
 		})
 
 		const returnValues = await cluster.run(2)
+		cluster.terminate()
 
 		expect(returnValues).toEqual([2, 4, 6, 8])
 	})
