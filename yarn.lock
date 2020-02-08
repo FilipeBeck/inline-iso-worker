@@ -3635,10 +3635,10 @@ p-try@^2.0.0:
   resolved "https://registry.yarnpkg.com/p-try/-/p-try-2.2.0.tgz#cb2868540e313d61de58fafbe35ce9004d5540e6"
   integrity sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==
 
-packteer@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/packteer/-/packteer-0.0.2.tgz#ac7aedbe47a308aecb5cb3d63ddc3fd1e28d707f"
-  integrity sha512-fzRibZnyg4pyQ+uytzMiOaBjJN8lGdB8Wp5VzUCBxHjpkdmIFgo0rsMNFoUUmA95JTsxDXZok1LSEu45grv70A==
+packteer@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/packteer/-/packteer-0.0.3.tgz#2d8ecdfcaf9d28d9210160d6f3d8e6f7b9ffda23"
+  integrity sha512-00skZcI4PYmv8dn6F3SDhLVB2L/yHH41aVuJrZpVBdMf/zG8KGZji9Ea04BbVGW8NlpDy55T+n0IfKrxtWlQuw==
   dependencies:
     memory-fs "^0.5.0"
     ts-loader "^6.2.1"
