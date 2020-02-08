@@ -1,6 +1,6 @@
 {
   "name": "inline-iso-worker",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Worker que trabalha com callbacks no lugar de arquivos",
   "main": "index.js",
   "repository": "git@github.com:FilipeBeck/inline-iso-worker.git",
