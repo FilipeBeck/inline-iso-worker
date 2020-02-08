@@ -1,12 +1,5 @@
-import { Worker, isMainThread, parentPort, workerData } from 'worker_threads'
+import { Worker } from 'worker_threads'
 import InlineWorker, { WorkerMessage, BaseCallback } from './InlineWorker'
-
-// Código executado apenas pelo worker
-if (!isMainThread) {
-	new Function('parentPort', workerData)(parentPort)
-	// @ts-ignore - o código restante é desnecessário no escopo do worker
-	return
-}
 
 /**
  * Worker utilizado no ambiente Node.
@@ -38,7 +31,7 @@ export default class NodeWorker<TScope, TCallback extends BaseCallback<TScope>> 
 
 		const code = this.createSerializedRunner(false)
 
-		this.innerWorker = new Worker(__filename, { workerData: code })
+		this.innerWorker = new Worker(code, { eval: true })
 	}
 
 	/**

@@ -105,13 +105,13 @@ export default abstract class InlineWorker<TScope, TCallback extends BaseCallbac
 	 */
 	protected createSerializedRunner(isBrowser: boolean): string {
 		// Pequenas variações entre Node e Browser
-		const [protocolPrefix, messageArgument, parserArgument, parent, listenMethod] = isBrowser && [
+		const [protocolOrRequirePrefix, messageArgument, parserArgument, parent, listenMethod] = isBrowser && [
 			'data://utf8; application/javascript,', 'event', 'event.data', 'self', 'addEventListener'
 		] || [
-			'', 'data', 'data', 'parentPort', 'on'
+			'const { parentPort } = require("worker_threads")', 'data', 'data', 'parentPort', 'on'
 		]
 
-		return `${protocolPrefix}
+		return `${protocolOrRequirePrefix}
 			const scope = ${JSON.stringify(this.scope)}
 			const callback = (${this.isNativeCallback && this.handler.name || this.handler.toString()}).bind(scope)
 

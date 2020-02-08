@@ -1,4 +1,4 @@
-import NodeWorker from '../app/NodeWorker'
+import NodeWorker from '../src/NodeWorker'
 
 describe('Métdodo run()', () => {
 	test('propagação de exceções dentro do callback', async () => {

@@ -17,7 +17,7 @@
     "compile": "yarn tsc",
     "copy-resources": "cp package.json README.md app",
     "build": "yarn clear && yarn compile && yarn copy-resources",
-    "test": "yarn tsc && yarn jest --detectOpenHandles",
+    "test": "yarn jest --coverage",
     "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
   "browser": {
@@ -39,7 +39,7 @@
     "jest-puppeteer": "^4.4.0",
     "memfs": "^3.0.3",
     "memory-fs": "^0.5.0",
-    "packteer": "^0.0.1",
+    "packteer": "^0.0.2",
     "puppeteer": "^2.0.0",
     "ts-jest": "^24.3.0",
     "ts-loader": "^6.2.1",

@@ -1,4 +1,4 @@
-import Cluster from '../app/Cluster'
+import Cluster from '../src/Cluster'
 
 describe('Método run()', () => {
 	const scopes = [
