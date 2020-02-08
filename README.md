@@ -1,6 +1,6 @@
 # inline-iso-worker
 
-[Versão em português](#[pt-BR])
+[Ir para a versão em português](#pt-br)
 
 [![Coverage Status](https://coveralls.io/repos/github/FilipeBeck/inline-iso-worker/badge.svg?branch=master)](https://coveralls.io/github/FilipeBeck/inline-iso-worker?branch=master)
 
