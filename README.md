@@ -1,10 +1,8 @@
-# inline-iso-worker
-
-[Ir para a versão em português](#pt-br)
+# inline-iso-worker [🇧🇷](#pt-br)
 
 [![Coverage Status](https://coveralls.io/repos/github/FilipeBeck/inline-iso-worker/badge.svg?branch=master)](https://coveralls.io/github/FilipeBeck/inline-iso-worker?branch=master)
 
-[Isomorfic](https://medium.com/airbnb-engineering/isomorphic-javascript-the-future-of-web-apps-10882b7a2ebc) worker who works with inline callbacks instead of files.
+[Isomorfic](https://medium.com/airbnb-engineering/isomorphic-javascript-the-future-of-web-apps-10882b7a2ebc) worker that works with inline callbacks instead of files.
 
 ## Installation
 
@@ -101,6 +99,8 @@ async someConcurrentFunction() {
   console.log(return3) // Prints "Filipe"
 }
 ```
+
+## 🇧🇷
 
 ## __[pt-BR]__
 

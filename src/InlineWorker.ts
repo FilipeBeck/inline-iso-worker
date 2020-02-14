@@ -1,24 +1,32 @@
 import { Worker as NodeWorker } from 'worker_threads'
 
 /**
- * Interface instanciadora dos workers.
+ * 🇺🇸 Instantiating worker interface.
+ * 
+ * 🇧🇷 Interface instanciadora dos workers.
  */
 export interface WorkerConstructor {
 	/**
-	 * Construtor com escopo.
-	 * @param scope Variáveis disponíveis no escopo do worker.
-	 * @param handler Callback invocado sempre que executar o worker.
+	 * 🇺🇸 Constructor with scope.
+	 * 
+	 * 🇧🇷 Construtor com escopo.
+	 * 
+	 * @param scope 🇺🇸 Variables available in the scope of each constructor. 🇧🇷 Variáveis disponíveis no escopo do worker.
+	 * @param handler 🇺🇸 Handler called whenever the worker run. 🇧🇷 Callback invocado sempre que executar o worker.
 	 */
-	new <TScope, TCallback extends BaseCallback<TScope>>(scope: TScope, callback: TCallback): InlineWorker<TScope, TCallback>
+	new <TScope, TCallback extends BaseCallback<TScope>>(scope: TScope, handler: TCallback): InlineWorker<TScope, TCallback>
 
 	/**
-	 * Construtor sem escopo.
-	 * @param handler Callback invocado sempre que executar o worker.
+	 * 🇺🇸 Constructor without scope.
+	 * 
+	 * 🇧🇷 Construtor sem escopo.
+	 * 
+	 * @param handler 🇺🇸 Handler called whenever the worker run. 🇧🇷 Callback invocado sempre que executar o worker.
 	 */
-	new <TCallback extends BaseCallback>(callback: TCallback): InlineWorker<undefined, TCallback>
+	new <TCallback extends BaseCallback>(handler: TCallback): InlineWorker<undefined, TCallback>
 }
 
-/** Callback base. */
+/** 🇺🇸 Base callback. 🇧🇷 Callback base. */
 export type BaseCallback<TScope = undefined> = (this: TScope, ...args: any[]) => any
 
 /**
@@ -36,9 +44,12 @@ export interface WorkerMessage {
 type BrowserWorker = Worker
 
 /**
- * Worker que executa callbacks inline ao invés de arquivos externos utilizando serialização de funções e protocolo `data://` para carregar o código.
- * @param TScope Variáveis disponíveis no escopo do worker.
- * @param TCallback Manipulador de execução.
+ * 🇺🇸 Worker that works with inline callbacks instead of files, using serialization of functions, `eval` in node and `data://` protocol in the browser to load the code.
+ * 
+ * 🇧🇷 Worker que executa callbacks inline ao invés de arquivos, utilizando serialização de funções, `eval` em node e protocolo `data://` no browser para carregar o código.
+ * 
+ * @param TScope 🇺🇸 Variables available in the worker's scope. 🇧🇷 Variáveis disponíveis no escopo do worker.
+ * @param TCallback 🇺🇸 Execution handler. 🇧🇷 Manipulador de execução.
  */
 export default abstract class InlineWorker<TScope, TCallback extends BaseCallback<TScope>> {
 	/** Variáveis disponíveis no escopo do worker. */
@@ -59,19 +70,25 @@ export default abstract class InlineWorker<TScope, TCallback extends BaseCallbac
 	private lastQueuedPromise?: Promise<ReturnType<TCallback>>
 
 	/**
-	 * Construtor.
-	 * @param scope Variáveis disponíveis no escopo do worker.
-	 * @param handler Callback invocado sempre que executar o worker.
+	 * 🇺🇸 Constructor.
+	 * 
+	 * 🇧🇷 Construtor.
+	 * 
+	 * @param scope 🇺🇸 Variables available in the worker's scope. 🇧🇷 Variáveis disponíveis no escopo do worker.
+	 * @param handler 🇺🇸 Callback called whenever the worker run. 🇧🇷 Callback invocado sempre que executar o worker.
 	 */
 	constructor(scope: TScope, handler: TCallback)
 
 	/**
-	 * Construtor.
-	 * @param handler Callback invocado sempre que executar o worker.
+	 * 🇺🇸 Constructor.
+	 * 
+	 * 🇧🇷 Construtor.
+	 * 
+	 * @param handler 🇺🇸 Callback called whenever the worker run. 🇧🇷 Callback invocado sempre que executar o worker.
 	 */
 	constructor(handler: TCallback)
 
-	/**
+	/*
 	 * Construtor.
 	 */
 	constructor(...args: unknown[]) {
@@ -86,14 +103,19 @@ export default abstract class InlineWorker<TScope, TCallback extends BaseCallbac
 	}
 
 	/**
-	 * Executa o manipulador com os argumentos especificados.
-	 * @param args Argumentos fornecidos ao manipulador de execução.
-	 * @return Promessa com o valor de retorno do manipulador.
+	 * 🇺🇸 Executes the handler with the specified arguments.
+	 * 
+	 * 🇧🇷 Executa o manipulador com os argumentos especificados.
+	 * 
+	 * @param args 🇺🇸 Arguments provided to execution handler. 🇧🇷 Argumentos fornecidos ao manipulador de execução.
+	 * @return 🇺🇸 Promise with the return value from the handler. 🇧🇷 Promessa com o valor de retorno do manipulador.
 	 */
 	public abstract async run(...args: Parameters<TCallback>): Promise<ReturnType<TCallback>>
 
 	/**
-	 * Encerra o worker imediatamente, independentemente do worker ter concluido alguma operação em andamento.
+	 * 🇺🇸 Finish the worker immediately, regardless of wheter the worker has completed an operation in progress.
+	 * 
+	 * 🇧🇷 Encerra o worker imediatamente, independentemente do worker ter concluido alguma operação em andamento.
 	 */
 	public terminate(): void {
 		this.innerWorker.terminate()
