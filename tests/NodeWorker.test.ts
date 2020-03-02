@@ -65,6 +65,34 @@ describe('Métdodo run()', () => {
 		expect(evaluations).toEqual(expectedOutputs)
 	})
 
+	test('valor de retorno para callbacks que retornam `Promise`', async () => {
+		expect.assertions(1)
+
+		const worker = new NodeWorker((...args: number[]) => {
+			return new Promise(resolve => resolve(args.map(arg => arg * 2)))
+		})
+
+		const parameters = [
+			[1, 2, 4, 8],
+			[10, 20, 40, 80],
+			[1, 3, 9, 27],
+			[10, 30, 90, 270]
+		]
+
+		const evaluations = await Promise.all(parameters.map(parameter => worker.run(...parameter)))
+
+		const expectedOutputs = [
+			[2, 4, 8, 16],
+			[20, 40, 80, 160],
+			[2, 6, 18, 54],
+			[20, 60, 180, 540]
+		]
+
+		worker.terminate()
+
+		expect(evaluations).toEqual(expectedOutputs)
+	})
+
 	test('callback sem argumentos e sem valor de retorno', async () => {
 		expect.assertions(1)
 

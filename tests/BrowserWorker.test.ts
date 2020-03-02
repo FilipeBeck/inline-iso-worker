@@ -95,6 +95,34 @@ describe('Método run()', () => {
 		expect(evaluations_2).toEqual(expectedOutputs_2)
 	})
 
+	test('valor de retorno para callbacks que retornam `Promise`', async () => {
+		expect.assertions(1)
+
+		const evaluations = await page.evaluate(async () => {
+			const worker = new BrowserWorker((...args: number[]) => {
+				return new Promise(resolve => resolve(args.map(arg => arg * 2)))
+			})
+
+			const parameters = [
+				[1, 2, 4, 8],
+				[10, 20, 40, 80],
+				[1, 3, 9, 27],
+				[10, 30, 90, 270]
+			]
+
+			return await Promise.all(parameters.map(parameter => worker.run(...parameter)))
+		})
+
+		const expectedOutputs = [
+			[2, 4, 8, 16],
+			[20, 40, 80, 160],
+			[2, 6, 18, 54],
+			[20, 60, 180, 540]
+		]
+
+		expect(evaluations).toEqual(expectedOutputs)
+	})
+
 	test('valor de retorno para callbacks nativos', async () => {
 		expect.assertions(1)
 

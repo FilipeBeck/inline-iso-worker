@@ -1,3 +1,4 @@
+import 'vanilla-x/Function'
 import { Worker as NodeWorker } from 'worker_threads'
 
 /**
@@ -14,7 +15,7 @@ export interface WorkerConstructor {
 	 * @param scope 🇺🇸 Variables available in the scope of each constructor. 🇧🇷 Variáveis disponíveis no escopo do worker.
 	 * @param handler 🇺🇸 Handler called whenever the worker run. 🇧🇷 Callback invocado sempre que executar o worker.
 	 */
-	new <TScope, TCallback extends BaseCallback<TScope>>(scope: TScope, handler: TCallback): InlineWorker<TScope, TCallback>
+	new <$Scope, $Callback extends BaseCallback<$Scope>>(scope: $Scope, handler: $Callback): InlineWorker<$Scope, $Callback>
 
 	/**
 	 * 🇺🇸 Constructor without scope.
@@ -23,11 +24,11 @@ export interface WorkerConstructor {
 	 * 
 	 * @param handler 🇺🇸 Handler called whenever the worker run. 🇧🇷 Callback invocado sempre que executar o worker.
 	 */
-	new <TCallback extends BaseCallback>(handler: TCallback): InlineWorker<undefined, TCallback>
+	new <$Callback extends BaseCallback>(handler: $Callback): InlineWorker<undefined, $Callback>
 }
 
 /** 🇺🇸 Base callback. 🇧🇷 Callback base. */
-export type BaseCallback<TScope = undefined> = (this: TScope, ...args: any[]) => any
+export type BaseCallback<$Scope = undefined> = (this: $Scope, ...args: any[]) => any
 
 /**
  * @internal
@@ -35,10 +36,18 @@ export type BaseCallback<TScope = undefined> = (this: TScope, ...args: any[]) =>
  */
 export interface WorkerMessage {
 	/** Dados de uma mensagem bem sucedida ou texto de uma mensagem de error. */
-	data: any
+	data: unknown
 	/** Determina se é uma mensagem bem sucedida ou erro. */
 	isError: boolean
 }
+
+/**
+ * Infere a resolução do retorno de `$Function` se este retorno for uma `Promise`, ou o pŕoprio valor de retorno de `$Function`, caso contrário.
+ * @param $Function Função a ser inferido o retorno.
+ */
+export type UnwrappedReturnType<$Function extends Function.Any> = (
+	ReturnType<$Function> extends Promise<infer $ResolveValue> ? $ResolveValue : ReturnType<$Function>
+)
 
 /** Alias para worker do browser. */
 type BrowserWorker = Worker
@@ -48,15 +57,15 @@ type BrowserWorker = Worker
  * 
  * 🇧🇷 Worker que executa callbacks inline ao invés de arquivos, utilizando serialização de funções, `eval` em node e protocolo `data://` no browser para carregar o código.
  * 
- * @param TScope 🇺🇸 Variables available in the worker's scope. 🇧🇷 Variáveis disponíveis no escopo do worker.
- * @param TCallback 🇺🇸 Execution handler. 🇧🇷 Manipulador de execução.
+ * @param $Scope 🇺🇸 Variables available in the worker's scope. 🇧🇷 Variáveis disponíveis no escopo do worker.
+ * @param $Callback 🇺🇸 Execution handler. 🇧🇷 Manipulador de execução.
  */
-export default abstract class InlineWorker<TScope, TCallback extends BaseCallback<TScope>> {
+export default abstract class InlineWorker<$Scope, $Callback extends BaseCallback<$Scope>> {
 	/** Variáveis disponíveis no escopo do worker. */
-	protected scope?: TScope
+	protected scope?: $Scope
 
 	/** Manipulador de execução. */
-	protected handler: TCallback
+	protected handler: $Callback
 
 	/** Instância do worker nativo. */
 	protected abstract innerWorker: BrowserWorker | NodeWorker
@@ -67,7 +76,7 @@ export default abstract class InlineWorker<TScope, TCallback extends BaseCallbac
 	}
 
 	/** Última promessa criada por `queue`. */
-	private lastQueuedPromise?: Promise<ReturnType<TCallback>>
+	private lastQueuedPromise?: Promise<UnwrappedReturnType<$Callback>>
 
 	/**
 	 * 🇺🇸 Constructor.
@@ -77,7 +86,7 @@ export default abstract class InlineWorker<TScope, TCallback extends BaseCallbac
 	 * @param scope 🇺🇸 Variables available in the worker's scope. 🇧🇷 Variáveis disponíveis no escopo do worker.
 	 * @param handler 🇺🇸 Callback called whenever the worker run. 🇧🇷 Callback invocado sempre que executar o worker.
 	 */
-	constructor(scope: TScope, handler: TCallback)
+	constructor(scope: $Scope, handler: $Callback)
 
 	/**
 	 * 🇺🇸 Constructor.
@@ -86,13 +95,13 @@ export default abstract class InlineWorker<TScope, TCallback extends BaseCallbac
 	 * 
 	 * @param handler 🇺🇸 Callback called whenever the worker run. 🇧🇷 Callback invocado sempre que executar o worker.
 	 */
-	constructor(handler: TCallback)
+	constructor(handler: $Callback)
 
 	/*
 	 * Construtor.
 	 */
 	constructor(...args: unknown[]) {
-		const [handler, scope] = typeof args[0] == 'function' ? [args[0] as TCallback, undefined] : [args[1] as TCallback, args[0] as TScope]
+		const [handler, scope] = typeof args[0] == 'function' ? [args[0] as $Callback, undefined] : [args[1] as $Callback, args[0] as $Scope]
 
 		if (scope && !handler.toString().startsWith('function')) {
 			throw new Error('Arrow function not allowed when providing scope')
@@ -108,9 +117,9 @@ export default abstract class InlineWorker<TScope, TCallback extends BaseCallbac
 	 * 🇧🇷 Executa o manipulador com os argumentos especificados.
 	 * 
 	 * @param args 🇺🇸 Arguments provided to execution handler. 🇧🇷 Argumentos fornecidos ao manipulador de execução.
-	 * @return 🇺🇸 Promise with the return value from the handler. 🇧🇷 Promessa com o valor de retorno do manipulador.
+	 * @return 🇺🇸 Promise with the return value from the handler. If the return value is a `Promise`, returns the resolved value. 🇧🇷 Promessa com o valor de retorno do manipulador. Se o valor de retorno for uma `Promise`, retorna o valor resolvido.
 	 */
-	public abstract async run(...args: Parameters<TCallback>): Promise<ReturnType<TCallback>>
+	public abstract async run(...args: Parameters<$Callback>): Promise<UnwrappedReturnType<$Callback>>
 
 	/**
 	 * 🇺🇸 Finish the worker immediately, regardless of wheter the worker has completed an operation in progress.
@@ -138,16 +147,20 @@ export default abstract class InlineWorker<TScope, TCallback extends BaseCallbac
 			const callback = (${this.isNativeCallback && this.handler.name || this.handler.toString()}).bind(scope)
 
 			function handleMessage(${messageArgument}) {
+				let callbackReturn
+
 				try {
-					const args = JSON.parse(${parserArgument})
-					const returnValue = { data: callback(...args), error: false }
-					
-					${parent}.postMessage(JSON.stringify(returnValue))
+					callbackReturn = Promise.resolve(callback(...JSON.parse(${parserArgument})))
 				}
 				catch (error) {
-					const errorValue = { data: error.message || error.stack || error, isError: true }
-
-					${parent}.postMessage(JSON.stringify(errorValue))
+					callbackReturn = Promise.reject(error.message || error.stack || error)
+				}
+				finally {
+					callbackReturn.then(data => {
+						${parent}.postMessage(JSON.stringify({ data, error: false }))
+					}).catch(reason => {
+						${parent}.postMessage(JSON.stringify({ data: reason, isError: true }))
+					})
 				}
 			}
 
@@ -159,8 +172,8 @@ export default abstract class InlineWorker<TScope, TCallback extends BaseCallbac
 	 * Sincroniza a execução de `handler` com os demais em andamento, evitando sobrescrita de entrada/saida nas trocas de mensagens.
 	 * @param handler Callback a ser enfileirado.
 	 */
-	protected async queue(handler: (resolve: (value: ReturnType<TCallback>) => void, reject: (error: Error) => void) => void): Promise<ReturnType<TCallback>> {
-		const nextPromise = new Promise<ReturnType<TCallback>>(async (resolve, reject) => {
+	protected async queue(handler: (resolve: (value: UnwrappedReturnType<$Callback>) => void, reject: (error: Error) => void) => void): Promise<UnwrappedReturnType<$Callback>> {
+		const nextPromise = new Promise<UnwrappedReturnType<$Callback>>(async (resolve, reject) => {
 			await this.lastQueuedPromise
 			handler(resolve, reject)
 		})

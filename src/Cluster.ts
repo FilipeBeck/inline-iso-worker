@@ -1,16 +1,16 @@
 import Worker from './index'
-import InlineWorker, { BaseCallback } from './InlineWorker'
+import InlineWorker, { BaseCallback, UnwrappedReturnType } from './InlineWorker'
 
 /**
  * 🇺🇸 Handles a group of workers that performs the same function synchronously.
  * 
  * 🇧🇷 Manipula grupo de workers que executam a mesma função de forma sincronizada.
  */
-export default class Cluster<TScope, TCallback extends BaseCallback<TScope>> {
-	private workers: InlineWorker<TScope, TCallback>[]
+export default class Cluster<$Scope, $Callback extends BaseCallback<$Scope>> {
+	private workers: InlineWorker<$Scope, $Callback>[]
 
 	/** Última promessa criada por `queue`. */
-	private lastQueuedPromise?: Promise<ReturnType<TCallback>[]>
+	private lastQueuedPromise?: Promise<UnwrappedReturnType<$Callback>[]>
 
 	/**
 	 * 🇺🇸 Constructor.
@@ -20,7 +20,7 @@ export default class Cluster<TScope, TCallback extends BaseCallback<TScope>> {
 	 * @param scopes 🇺🇸 List of scopes available for each worker. Will be created a worker for each scope. 🇧🇷 Lista de escopos disponíveis para cada worker. Será criado um worker para cada escopo.
 	 * @param handler 🇺🇸 Callback executed for each worker. 🇧🇷 Callback executado por cada worker.
 	 */
-	constructor(scopes: TScope[], handler: TCallback) {
+	constructor(scopes: $Scope[], handler: $Callback) {
 		if (!scopes.length) {
 			throw new Error('Argument `scopes` cannot be empty')
 		}
@@ -36,7 +36,7 @@ export default class Cluster<TScope, TCallback extends BaseCallback<TScope>> {
 	 * @param args 🇺🇸 Arguments provided to execution handler. 🇧🇷 Argumentos fornecidos ao manipulador de execução.
 	 * @return 🇺🇸 Promise with the return values from the handler of each worker. 🇧🇷 Promessa com os valores de retorno do manipulador de cada worker.
 	 */
-	public async run(...args: Parameters<TCallback>): Promise<ReturnType<TCallback>[]> {
+	public async run(...args: Parameters<$Callback>): Promise<UnwrappedReturnType<$Callback>[]> {
 		return this.queue(...args)
 	}
 
@@ -56,7 +56,7 @@ export default class Cluster<TScope, TCallback extends BaseCallback<TScope>> {
 	 * Sincroniza a execução de `handler` com os demais em andamento, evitando sobrescrita de entrada/saida nas trocas de mensagens.
 	 * @param args Argumentos a serem enfileirados.
 	 */
-	protected async queue(...args: Parameters<TCallback>): Promise<ReturnType<TCallback>[]> {
+	protected async queue(...args: Parameters<$Callback>): Promise<UnwrappedReturnType<$Callback>[]> {
 		const nextQueuedPromise = Promise.resolve(this.lastQueuedPromise).then(() => {
 			return Promise.all(this.workers.map(worker => worker.run(...args)))
 		})

@@ -1,11 +1,11 @@
-import InlineWorker, { WorkerMessage, BaseCallback } from './InlineWorker'
+import InlineWorker, { WorkerMessage, BaseCallback, UnwrappedReturnType } from './InlineWorker'
 
 /**
  * Worker utilizado no ambiente do browser.
- * @param TScope Variáveis disponíveis no escopo do worker.
- * @param TCallback Manipulador de execução
+ * @param $Scope Variáveis disponíveis no escopo do worker.
+ * @param $Callback Manipulador de execução
  */
-export default class BrowserWorker<TScope, TCallback extends BaseCallback<TScope>> extends InlineWorker<TScope, TCallback> {
+export default class BrowserWorker<$Scope, $Callback extends BaseCallback<$Scope>> extends InlineWorker<$Scope, $Callback> {
 	/** Instância do worker nativo. */
 	protected innerWorker: Worker
 
@@ -14,13 +14,13 @@ export default class BrowserWorker<TScope, TCallback extends BaseCallback<TScope
 	 * @param scope Variáveis disponíveis no escopo do worker.
 	 * @param handler Callback invocado sempre que executar o worker.
 	 */
-	constructor(scope: TScope, handler: TCallback)
+	constructor(scope: $Scope, handler: $Callback)
 
 	/**
 	 * Construtor.
 	 * @param handler Callback invocado sempre que executar o worker.
 	 */
-	constructor(handler: TCallback)
+	constructor(handler: $Callback)
 
 	/**
 	 * Construtor.
@@ -38,7 +38,7 @@ export default class BrowserWorker<TScope, TCallback extends BaseCallback<TScope
 	 * @param args Argumentos fornecidos ao manipulador de execução.
 	 * @return Promessa com o valor de retorno do manipulador.
 	 */
-	public run(...args: Parameters<TCallback>): Promise<ReturnType<TCallback>> {
+	public run(...args: Parameters<$Callback>): Promise<UnwrappedReturnType<$Callback>> {
 		return this.queue((resolve, reject) => {
 			const handleMessage = (event: MessageEvent) => {
 				removeListeners()
@@ -46,10 +46,10 @@ export default class BrowserWorker<TScope, TCallback extends BaseCallback<TScope
 				const workerMessage = JSON.parse(event.data) as WorkerMessage
 
 				if (!workerMessage.isError) {
-					resolve(workerMessage.data)
+					resolve(workerMessage.data as UnwrappedReturnType<$Callback>)
 				}
 				else {
-					reject(new Error(workerMessage.data))
+					reject(new Error(workerMessage.data as string))
 				}
 			}
 

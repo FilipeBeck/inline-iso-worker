@@ -74,7 +74,7 @@ Creates a cluster containing a worker for each provided scope, all sharing the s
 async run(...args: Parameters<TCallback>): Promise<ReturnType<TCallback>[]>
 ```
 
-Performs the callback provided in the constructor with the provided arguments for each worker and returns an array with the resulting values from each worker.
+Performs the callback provided in the constructor with the provided arguments for each worker and returns an array with the resulting values from each worker. If the return value is a `Promise`, returns the resolved value.
 
 ### Example
 
@@ -176,7 +176,7 @@ Cria um Cluster contendo um worker para cada escopo fornecido, todos compartilha
 async run(...args: Parameters<TCallback>): Promise<ReturnType<TCallback>[]>
 ```
 
-Executa o callback fornecido no construtor com os argumentos fornecidos para cada worker e retorna um array com os valores resultantes de cada worker.
+Executa o callback fornecido no construtor com os argumentos fornecidos para cada worker e retorna um array com os valores resultantes de cada worker. Se o valor de retorno for uma `Promise`, retorna o valor resolvido.
 
 ### Exemplo
 

@@ -6,7 +6,7 @@ let $Worker: WorkerConstructor
 if (isNode) {
 	$Worker = require('./NodeWorker').default
 }
-else if (typeof Worker != 'undefined') {
+else if (typeof Worker !== 'undefined') {
 	$Worker = require('./BrowserWorker').default
 }
 else {

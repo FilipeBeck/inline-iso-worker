@@ -1,10 +1,10 @@
-import InlineWorker, { BaseCallback } from './InlineWorker'
+import InlineWorker, { BaseCallback, UnwrappedReturnType } from './InlineWorker'
 
 /**
  * Worker utilizado no ambiente do browser quando o mesmo não suportar WebWorker.
- * @param TCallback Manipulador de execução
+ * @param $Callback Manipulador de execução
  */
-export default class FallbackWorker<TScope, TCallback extends BaseCallback<TScope>> extends InlineWorker<TScope, TCallback> {
+export default class FallbackWorker<$Scope, $Callback extends BaseCallback<$Scope>> extends InlineWorker<$Scope, $Callback> {
 	/** Instância do worker nativo (não instanciada). */
 	protected innerWorker!: Worker
 	
@@ -13,7 +13,7 @@ export default class FallbackWorker<TScope, TCallback extends BaseCallback<TScop
 	 * @param args Argumentos fornecidos ao manipulador de execução.
 	 * @return Promessa com o valor de retorno do manipulador.
 	 */
-	public async run(...args: Parameters<TCallback>): Promise<ReturnType<TCallback>> {
+	public async run(...args: Parameters<$Callback>): Promise<UnwrappedReturnType<$Callback>> {
 		return this.handler.call(this.scope!, ...args)
 	}
 }
