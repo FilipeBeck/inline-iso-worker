@@ -108,7 +108,7 @@ export default abstract class InlineWorker<$Scope, $Callback extends BaseCallbac
 	constructor(...args: unknown[]) {
 		const [handler, scope] = typeof args[0] == 'function' ? [args[0] as $Callback, undefined] : [args[1] as $Callback, args[0] as $Scope]
 
-		if (scope && !handler.toString().startsWith('function')) {
+		if (scope && !/^[^{]*function/.test(handler.toString())) {
 			throw new Error('Arrow function not allowed when providing scope')
 		}
 

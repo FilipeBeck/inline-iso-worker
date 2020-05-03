@@ -110,6 +110,7 @@ describe('Métdodo run()', () => {
 				new NodeWorker(() => { }).terminate()
 				new NodeWorker(function () { }).terminate()
 				new NodeWorker({ a: 1 }, function () { return this.a }).terminate()
+				new NodeWorker({ a: 1 }, async function () { return this.a }).terminate()
 
 				return true
 			}

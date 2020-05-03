@@ -105,9 +105,10 @@ describe('Método run()', () => {
 		async function evaluateToSuccess() {
 			return await page.evaluate(() => {
 				try {
-					new FallbackWorker(() => { })
-					new FallbackWorker(function () { })
-					new FallbackWorker({ a: 1 }, function () { return this.a })
+					new FallbackWorker(() => { }).terminate()
+					new FallbackWorker(function () { }).terminate()
+					new FallbackWorker({ a: 1 }, function () { return this.a }).terminate()
+					new FallbackWorker({ a: 1 }, async function () { return this.a }).terminate()
 
 					return true
 				}

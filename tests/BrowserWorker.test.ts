@@ -154,9 +154,10 @@ describe('Método run()', () => {
 		async function evaluateToSuccess() {
 			return await page.evaluate(() => {
 				try {
-					new BrowserWorker(() => { })
-					new BrowserWorker(function () { })
-					new BrowserWorker({ a: 1 }, function () { return this.a })
+					new BrowserWorker(() => { }).terminate()
+					new BrowserWorker(function () { }).terminate()
+					new BrowserWorker({ a: 1 }, function () { return this.a }).terminate()
+					new BrowserWorker({ a: 1 }, async function() { return this.a }).terminate()
 
 					return true
 				}
