@@ -136,15 +136,35 @@ export default abstract class InlineWorker<$Scope, $Callback extends BaseCallbac
 	 */
 	protected createSerializedRunner(isBrowser: boolean): string {
 		// Pequenas variações entre Node e Browser
-		const [protocolOrRequirePrefix, messageArgument, parserArgument, parent, listenMethod] = isBrowser && [
-			'data://utf8; application/javascript,', 'event', 'event.data', 'self', 'addEventListener'
+		const [protocolOrRequirePrefix, messageArgument, parserArgument, parent, onMethod, offMethod] = isBrowser && [
+			'data://utf8; application/javascript,', 'event', 'event.data', 'self', 'addEventListener', 'removeEventListener'
 		] || [
-			'const { parentPort } = require("worker_threads")', 'data', 'data', 'parentPort', 'on'
+			'const { parentPort } = require("worker_threads")', 'data', 'data', 'parentPort', 'on', 'off'
 		]
 
 		return `${protocolOrRequirePrefix}
-			const scope = ${JSON.stringify(this.scope)}
-			const callback = (${this.isNativeCallback && this.handler.name || this.handler.toString()}).bind(scope)
+			let scope, callback
+
+			function transferCallback(off, on) {
+				${parent}.${offMethod}('message', off)
+				${parent}.${onMethod}('message', on)
+			}
+
+			${parent}.${onMethod}('message', handleScope)
+
+			function handleScope(${messageArgument}) {
+				if (${parserArgument}) {
+					scope = JSON.parse(${parserArgument})
+				}
+
+				transferCallback(handleScope, handleCallback)
+			}
+
+			function handleCallback(${messageArgument}) {
+				callback = eval('() => ' + ${parserArgument})().bind(scope)
+
+				transferCallback(handleCallback, handleMessage)
+			}
 
 			function handleMessage(${messageArgument}) {
 				let callbackReturn
@@ -157,14 +177,12 @@ export default abstract class InlineWorker<$Scope, $Callback extends BaseCallbac
 				}
 				finally {
 					callbackReturn.then(data => {
-						${parent}.postMessage(JSON.stringify({ data, error: false }))
+						${parent}.postMessage(JSON.stringify({ data, isError: false }))
 					}).catch(reason => {
 						${parent}.postMessage(JSON.stringify({ data: reason, isError: true }))
 					})
 				}
 			}
-
-			${parent}.${listenMethod}('message', handleMessage)
 		`
 	}
 

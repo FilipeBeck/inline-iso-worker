@@ -32,6 +32,8 @@ export default class NodeWorker<$Scope, $Callback extends BaseCallback<$Scope>> 
 		const code = this.createSerializedRunner(false)
 
 		this.innerWorker = new Worker(code, { eval: true })
+		this.innerWorker.postMessage(JSON.stringify(this.scope))
+		this.innerWorker.postMessage(this.isNativeCallback && this.handler.name || this.handler.toString())
 	}
 
 	/**
