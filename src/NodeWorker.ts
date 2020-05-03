@@ -78,8 +78,4 @@ export default class NodeWorker<$Scope, $Callback extends BaseCallback<$Scope>> 
 			this.nativeWorker.postMessage(JSON.stringify(args))
 		})
 	}
-
-	public terminate(): void {
-		this.nativeWorker.terminate()
-	}
 }
