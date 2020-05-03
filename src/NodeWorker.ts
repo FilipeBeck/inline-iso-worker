@@ -1,4 +1,4 @@
-import { Worker } from 'worker_threads'
+import { Worker as NativeNodeWorker } from 'worker_threads'
 import InlineWorker, { WorkerMessage, BaseCallback, UnwrappedReturnType } from './InlineWorker'
 
 /**
@@ -8,7 +8,7 @@ import InlineWorker, { WorkerMessage, BaseCallback, UnwrappedReturnType } from '
  */
 export default class NodeWorker<$Scope, $Callback extends BaseCallback<$Scope>> extends InlineWorker<$Scope, $Callback> {
 	/** Instância do worker nativo. */
-	protected innerWorker: Worker
+	protected nativeWorker: NativeNodeWorker
 
 	/**
 	 * Construtor.
@@ -31,9 +31,9 @@ export default class NodeWorker<$Scope, $Callback extends BaseCallback<$Scope>> 
 
 		const code = this.createSerializedRunner(false)
 
-		this.innerWorker = new Worker(code, { eval: true })
-		this.innerWorker.postMessage(JSON.stringify(this.scope))
-		this.innerWorker.postMessage(this.isNativeCallback && this.handler.name || this.handler.toString())
+		this.nativeWorker = new NativeNodeWorker(code, { eval: true })
+		this.nativeWorker.postMessage(JSON.stringify(this.scope))
+		this.nativeWorker.postMessage(this.isNativeCallback && this.handler.name || this.handler.toString())
 	}
 
 	/**
@@ -69,20 +69,20 @@ export default class NodeWorker<$Scope, $Callback extends BaseCallback<$Scope>> 
 			}
 
 			const removeListeners = () => {
-				this.innerWorker.off('message', messageHandler)
-				this.innerWorker.off('error', errorHandler)
-				this.innerWorker.off('exit', exitHandler)
+				this.nativeWorker.off('message', messageHandler)
+				this.nativeWorker.off('error', errorHandler)
+				this.nativeWorker.off('exit', exitHandler)
 			}
 
-			this.innerWorker.on('message', messageHandler)
-			this.innerWorker.on('error', errorHandler)
-			this.innerWorker.on('exit', exitHandler)
+			this.nativeWorker.on('message', messageHandler)
+			this.nativeWorker.on('error', errorHandler)
+			this.nativeWorker.on('exit', exitHandler)
 
-			this.innerWorker.postMessage(JSON.stringify(args))
+			this.nativeWorker.postMessage(JSON.stringify(args))
 		})
 	}
 
 	public terminate(): void {
-		this.innerWorker.terminate()
+		this.nativeWorker.terminate()
 	}
 }

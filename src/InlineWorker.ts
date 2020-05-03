@@ -1,5 +1,5 @@
 import 'vanilla-x/Function'
-import { Worker as NodeWorker } from 'worker_threads'
+import { Worker as NativeNodeWorker } from 'worker_threads'
 
 /**
  * 🇺🇸 Instantiating worker interface.
@@ -31,6 +31,14 @@ export interface WorkerConstructor {
 export type BaseCallback<$Scope = undefined> = (this: $Scope, ...args: any[]) => any
 
 /**
+ * Infere a resolução do retorno de `$Function` se este retorno for uma `Promise`, ou o pŕoprio valor de retorno de `$Function`, caso contrário.
+ * @param $Function Função a ser inferido o retorno.
+ */
+export type UnwrappedReturnType<$Function extends Function.Any> = (
+	ReturnType<$Function> extends Promise<infer $ResolveValue> ? $ResolveValue : ReturnType<$Function>
+)
+
+/**
  * @internal
  * Estrutura das mensagens trocadas internamente.
  */
@@ -41,16 +49,13 @@ export interface WorkerMessage {
 	isError: boolean
 }
 
-/**
- * Infere a resolução do retorno de `$Function` se este retorno for uma `Promise`, ou o pŕoprio valor de retorno de `$Function`, caso contrário.
- * @param $Function Função a ser inferido o retorno.
- */
-export type UnwrappedReturnType<$Function extends Function.Any> = (
-	ReturnType<$Function> extends Promise<infer $ResolveValue> ? $ResolveValue : ReturnType<$Function>
-)
-
+/** @internal */
 /** Alias para worker do browser. */
-type BrowserWorker = Worker
+export type NativeBrowserWorker = Worker
+
+/** @internal */
+/** Worker inerente ao ambiente de execução. */
+export type NativeWorker = NativeBrowserWorker | NativeNodeWorker
 
 /**
  * 🇺🇸 Worker that works with inline callbacks instead of files, using serialization of functions, `eval` in node and `data://` protocol in the browser to load the code.
@@ -68,7 +73,7 @@ export default abstract class InlineWorker<$Scope, $Callback extends BaseCallbac
 	protected handler: $Callback
 
 	/** Instância do worker nativo. */
-	protected abstract innerWorker: BrowserWorker | NodeWorker
+	protected abstract nativeWorker: NativeWorker
 
 	/** Determina se o manipulador é uma função nativa, como `eval` ou `parseInt`, por exemplo. */
 	protected get isNativeCallback(): boolean {
@@ -127,7 +132,7 @@ export default abstract class InlineWorker<$Scope, $Callback extends BaseCallbac
 	 * 🇧🇷 Encerra o worker imediatamente, independentemente do worker ter concluido alguma operação em andamento.
 	 */
 	public terminate(): void {
-		this.innerWorker.terminate()
+		this.nativeWorker.terminate()
 	}
 
 	/**

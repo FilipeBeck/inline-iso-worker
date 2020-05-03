@@ -6,7 +6,7 @@ import InlineWorker, { BaseCallback, UnwrappedReturnType } from './InlineWorker'
  */
 export default class FallbackWorker<$Scope, $Callback extends BaseCallback<$Scope>> extends InlineWorker<$Scope, $Callback> {
 	/** Instância do worker nativo (não instanciada). */
-	protected innerWorker!: Worker
+	protected nativeWorker!: Worker
 	
 	/**
 	 * Executa o manipulador com os argumentos especificados.

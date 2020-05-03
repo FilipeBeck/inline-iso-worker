@@ -1,4 +1,4 @@
-import InlineWorker, { WorkerMessage, BaseCallback, UnwrappedReturnType } from './InlineWorker'
+import InlineWorker, { WorkerMessage, BaseCallback, UnwrappedReturnType, NativeBrowserWorker } from './InlineWorker'
 
 /**
  * Worker utilizado no ambiente do browser.
@@ -7,7 +7,7 @@ import InlineWorker, { WorkerMessage, BaseCallback, UnwrappedReturnType } from '
  */
 export default class BrowserWorker<$Scope, $Callback extends BaseCallback<$Scope>> extends InlineWorker<$Scope, $Callback> {
 	/** Instância do worker nativo. */
-	protected innerWorker: Worker
+	protected nativeWorker: NativeBrowserWorker
 
 	/**
 	 * Construtor.
@@ -30,9 +30,9 @@ export default class BrowserWorker<$Scope, $Callback extends BaseCallback<$Scope
 
 		const code = this.createSerializedRunner(true)
 
-		this.innerWorker = new Worker(code)
-		this.innerWorker.postMessage(JSON.stringify(this.scope))
-		this.innerWorker.postMessage(this.isNativeCallback && this.handler.name || this.handler.toString())
+		this.nativeWorker = new Worker(code)
+		this.nativeWorker.postMessage(JSON.stringify(this.scope))
+		this.nativeWorker.postMessage(this.isNativeCallback && this.handler.name || this.handler.toString())
 	}
 
 	/**
@@ -61,14 +61,14 @@ export default class BrowserWorker<$Scope, $Callback extends BaseCallback<$Scope
 			}
 
 			const removeListeners = () => {
-				this.innerWorker.removeEventListener('message', handleMessage)
-				this.innerWorker.removeEventListener('error', handleError)
+				this.nativeWorker.removeEventListener('message', handleMessage)
+				this.nativeWorker.removeEventListener('error', handleError)
 			}
 
-			this.innerWorker.addEventListener('message', handleMessage)
-			this.innerWorker.addEventListener('error', handleError)
+			this.nativeWorker.addEventListener('message', handleMessage)
+			this.nativeWorker.addEventListener('error', handleError)
 
-			this.innerWorker.postMessage(JSON.stringify(args))
+			this.nativeWorker.postMessage(JSON.stringify(args))
 		})
 	}
 }
