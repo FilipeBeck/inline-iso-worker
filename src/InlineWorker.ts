@@ -192,6 +192,14 @@ export default abstract class InlineWorker<$Scope, $Callback extends BaseCallbac
 	}
 
 	/**
+	 * Inicializa as variáveis de escopo e processa a função de callback do Worker.
+	 */
+	protected setupNativeWorkerEnvironment(): void {
+		this.nativeWorker.postMessage(JSON.stringify(this.scope))
+		this.nativeWorker.postMessage(this.isNativeCallback && this.handler.name || this.handler.toString())
+	}
+
+	/**
 	 * Sincroniza a execução de `handler` com os demais em andamento, evitando sobrescrita de entrada/saida nas trocas de mensagens.
 	 * @param handler Callback a ser enfileirado.
 	 */

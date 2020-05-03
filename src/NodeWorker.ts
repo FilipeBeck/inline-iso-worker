@@ -29,11 +29,8 @@ export default class NodeWorker<$Scope, $Callback extends BaseCallback<$Scope>> 
 	constructor(...args: any[]) {
 		super(args[0], args[1])
 
-		const code = this.createSerializedRunner(false)
-
-		this.nativeWorker = new NativeNodeWorker(code, { eval: true })
-		this.nativeWorker.postMessage(JSON.stringify(this.scope))
-		this.nativeWorker.postMessage(this.isNativeCallback && this.handler.name || this.handler.toString())
+		this.nativeWorker = new NativeNodeWorker(this.createSerializedRunner(false), { eval: true })
+		this.setupNativeWorkerEnvironment()
 	}
 
 	/**

@@ -28,11 +28,8 @@ export default class BrowserWorker<$Scope, $Callback extends BaseCallback<$Scope
 	constructor(...args: any[]) {
 		super(args[0], args[1])
 
-		const code = this.createSerializedRunner(true)
-
-		this.nativeWorker = new Worker(code)
-		this.nativeWorker.postMessage(JSON.stringify(this.scope))
-		this.nativeWorker.postMessage(this.isNativeCallback && this.handler.name || this.handler.toString())
+		this.nativeWorker = new Worker(this.createSerializedRunner(true))
+		this.setupNativeWorkerEnvironment()
 	}
 
 	/**
