@@ -16,4 +16,9 @@ export default class FallbackWorker<$Scope, $Callback extends BaseCallback<$Scop
 	public async run(...args: Parameters<$Callback>): Promise<UnwrappedReturnType<$Callback>> {
 		return this.handler.call(this.scope!, ...args)
 	}
+
+	/** Noop. */
+	public terminate() {
+
+	}
 }
